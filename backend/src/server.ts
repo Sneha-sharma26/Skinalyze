@@ -31,12 +31,15 @@ app.post('/analyze', upload.single('image'), async (req: Request, res: Response)
       timeout: 30000,
     })
 
-    const ml = response.data as { issues: string[]; confidence: number }
-    const skinTone = (req.query.tone as string | undefined) as any
-    const skinType = (req.query.type as string | undefined) as any
+    const ml = response.data as { issues: string[]; confidence: number; skin_tone?: any; skin_type?: any }
+
+    // Prefer explicit query overrides, otherwise use ML-provided attributes if available
+    const skinTone = (req.query.tone as string | undefined) || (ml.skin_tone as any)
+    const skinType = (req.query.type as string | undefined) || (ml.skin_type as any)
+
     const recs = getRecommendations(ml.issues, { skinTone, skinType })
 
-    res.json({ ...ml, recommendations: recs })
+    res.json({ issues: ml.issues, confidence: ml.confidence, recommendations: recs })
   } catch (error: any) {
     console.error('Analyze error:', error?.message)
     res.status(500).json({ error: 'Failed to analyze image' })

@@ -1,3 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Mint Green Colors */
+    --color-mint-50: #f0fdfa;
+    --color-mint-100: #ccfbf1;
+    --color-mint-200: #99f6e4;
+    --color-mint-300: #5eead4;
+    --color-mint-400: #2dd4bf;
+    --color-mint-500: #14b8a6;
+    --color-mint-600: #0d9488;
+    --color-mint-700: #0f766e;
+    --color-mint-800: #115e59;
+    --color-mint-900: #134e4a;
+    
+    /* Pink Colors */
+    --color-pink-50: #fdf2f8;
+    --color-pink-100: #fce7f3;
+    --color-pink-200: #fbcfe8;
+    --color-pink-300: #f9a8d4;
+    --color-pink-400: #f472b6;
+    --color-pink-500: #ec4899;
+    --color-pink-600: #db2777;
+    --color-pink-700: #be185d;
+    --color-pink-800: #9d174d;
+    --color-pink-900: #831843;
+  }
+}
