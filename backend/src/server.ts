@@ -25,21 +25,37 @@ app.post('/analyze', upload.single('image'), async (req: Request, res: Response)
       return res.status(400).json({ error: 'Image file is required' })
     }
 
-    const mlServiceUrl = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8000/analyze'
+    const mlServiceUrl = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8001/analyze'
     const response = await axios.post(mlServiceUrl, req.file.buffer, {
       headers: { 'Content-Type': 'application/octet-stream' },
       timeout: 30000,
     })
 
-    const ml = response.data as { issues: string[]; confidence: number; skin_tone?: any; skin_type?: any }
+    const ml = response.data as { 
+      issues: string[]; 
+      confidence: number; 
+      skin_tone?: any; 
+      skin_type?: any;
+      recommendations?: any[];
+    }
 
-    // Prefer explicit query overrides, otherwise use ML-provided attributes if available
-    const skinTone = (req.query.tone as string | undefined) || (ml.skin_tone as any)
-    const skinType = (req.query.type as string | undefined) || (ml.skin_type as any)
+    // Use ML-generated recommendations if available, otherwise fall back to static recommendations
+    let recommendations = ml.recommendations || []
+    
+    // If no recommendations from ML service, use static recommendations
+    if (recommendations.length === 0) {
+      const skinTone = (req.query.tone as string | undefined) || (ml.skin_tone as any)
+      const skinType = (req.query.type as string | undefined) || (ml.skin_type as any)
+      recommendations = getRecommendations(ml.issues, { skinTone, skinType })
+    }
 
-    const recs = getRecommendations(ml.issues, { skinTone, skinType })
-
-    res.json({ issues: ml.issues, confidence: ml.confidence, recommendations: recs })
+    res.json({ 
+      issues: ml.issues, 
+      confidence: ml.confidence, 
+      skin_tone: ml.skin_tone,
+      skin_type: ml.skin_type,
+      recommendations: recommendations 
+    })
   } catch (error: any) {
     console.error('Analyze error:', error?.message)
     res.status(500).json({ error: 'Failed to analyze image' })
