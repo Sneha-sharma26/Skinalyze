@@ -184,6 +184,17 @@ def generate_ai_recommendations(issues: list[str], skin_tone: str, skin_type: st
     # Limit to 4 recommendations
     return recommendations[:4]
 
+@app.get("/")
+def root():
+    return {
+        "message": "Skinalyze ML Service is running!",
+        "endpoints": {
+            "health": "/health",
+            "analyze": "/analyze (POST)"
+        },
+        "status": "ok"
+    }
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
